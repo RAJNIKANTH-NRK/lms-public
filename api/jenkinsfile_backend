@@ -6,10 +6,10 @@ pipeline{
         stage('Sonar Analysis') {
             steps {
                 echo 'CODE QUALITY CHECK'
-                // Below command works in jenkins
-                sh 'cd api && docker run --rm -e SONAR_HOST_URL="http://http://34.232.78.184:9000" -v ".:/usr/src" -e SONAR_TOKEN="sqa_2a45f5d47d74bffc7f9363d7fc70278d7e5e8306" sonarsource/sonar-scanner-cli -Dsonar.projectKey=lms'
-                echo 'CODE QUALITY COMPLETED' 
-        
+                sh '''
+                     cd api
+                     docker run --rm -e SONAR_HOST_URL="http://http://34.232.78.184:9000" -v ".:/usr/src" -e SONAR_TOKEN="sqa_2a45f5d47d74bffc7f9363d7fc70278d7e5e8306" sonarsource/sonar-scanner-cli -Dsonar.projectKey=lms'
+                 '''
             }
         }
     }
