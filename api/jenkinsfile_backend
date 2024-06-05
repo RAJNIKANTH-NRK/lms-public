@@ -1,50 +1,15 @@
 Jenkins file 
-pipeline {
-    agent{
-       label 'docker'
-    }
+pipeline{
+    agent any
 
-    environment {
-
-    DOCKERHUB_CREDENTIALS = credentials('dockerhub1')
-     registry = "rajnikanth786/be-lms"
-        registryCredential = 'dockerhub1'
-       
-    }
-
-    stages {
+      stages {
+        stage('Sonar Analysis') {
+            steps {
+                echo 'CODE QUALITY CHECK'
+                // Below command works in jenkins
+                sh 'cd api && sudo docker run --rm -e SONAR_HOST_URL="http://100.25.150.253:9000/" -v ".:/usr/src" -e SONAR_TOKEN="squ_d08aa9812e4a490a63345155d79e981a1372daaf" sonarsource/sonar-scanner-cli -Dsonar.projectKey=lms'
+                echo 'CODE QUALITY COMPLETED' 
         
-        
-        stage('Building the docker image') {
-            steps {
-                sh 'cd api && docker build -t rajnikanth786/be-lms .'
-            }
-        }
-        stage('Logging into dockerhub account') {
-            steps {
-                sh 'echo $DOCKERHUB_CREDENTIALS_PSW | docker login -u $DOCKERHUB_CREDENTIALS_USR --password-stdin'
-            }
-        }
-        stage('pushing the docker image into dockerhub') {
-            steps {
-                  sh 'docker push rajnikanth786/be-lms'
-            }
-        }
-        stage('Remove old docker images') {
-             steps {
-                 sh 'docker rmi -f rajnikanth786/be-lms'
-            }
-        }
-         stage('creating database container') {
-             steps {
-                 sh 'docker container rm --force lmsdb'
-                 sh 'docker run -d -p 5432:5432 --network lmsnetwork -e  POSTGRES_PASSWORD=password --name lmsdb postgres'
-            }
-        }
-         stage('Running the docker container') {
-            steps {
-                  sh 'docker container rm --force backend'
-                  sh 'docker run -d -p 8080:8080 --network lmsnetwork -e DATABASE_URL=postgresql://postgres:password@lmsdb:5432/postgres --name backend -e PORT=8080 -e MODE=local  rajnikanth786/be-lms'
             }
         }
     }
